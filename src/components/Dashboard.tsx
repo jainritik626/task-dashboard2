@@ -14,17 +14,30 @@ export function Dashboard() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filter, setFilter] = useState<string>('All');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // New state for sort order
 
   const filteredTasks = tasks
     .filter(task => filter === 'All' || task.status === filter)
-    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+    .sort((a, b) => {
+      const dateA = new Date(a.dueDate).getTime();
+      const dateB = new Date(b.dueDate).getTime();
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+    });
 
   return (
     <div className="container mx-auto p-4">
       <DashboardHeader tasks={tasks} />
       
       <div className="flex justify-between mb-4">
-        <FilterButtons filter={filter} setFilter={setFilter} />
+        <div className="flex items-center gap-4">
+          <FilterButtons filter={filter} setFilter={setFilter} />
+          <Button
+            variant="outline"
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+          >
+            Sort by Due Date {sortOrder === 'asc' ? '↑' : '↓'}
+          </Button>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>Add Task</Button>
